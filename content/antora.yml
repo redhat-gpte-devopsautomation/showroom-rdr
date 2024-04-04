@@ -1,13 +1,13 @@
 ---
 name: modules
-title: Sample Module Title
+title: Achieve business continuity with Red Hat OpenShift Container Platform
 version: master
 nav:
   - modules/ROOT/nav.adoc
 
 asciidoc:
   attributes:
-    lab_name: "I'm the lab_name var"
+    lab_name: "Achieve business continuity with Red Hat OpenShift Container Platform"
     release-version: master
     page-pagination: true
     my_var: "foo"

@@ -1,0 +1,12 @@
+:markup-in-source: verbatim,attributes,quotes
+
+== Review
+
+Hopefully you learned a few things on how to achive business continuity on Red Hat OpenShift Platform through this lab.
+
+Disaster Recovery features supported by Red Hat OpenShift Data Foundation require all of the following prerequisites in order to successfully implement a Disaster Recovery solution:
+
+* A valid Red Hat OpenShift Data Foundation Advanced entitlement
+* A valid Red Hat Advanced Cluster Management for Kubernetes subscription
+
+Thank you!

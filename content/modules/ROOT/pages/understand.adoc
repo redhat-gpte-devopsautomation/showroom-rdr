@@ -1,0 +1,477 @@
+:hub_openshift_api_server_url: %hub_openshift_api_server_url%
+:hub_openshift_cluster_console_url: %hub_openshift_cluster_console_url%
+:hub_openshift_cluster_admin_username: %hub_openshift_cluster_admin_username%
+:hub_openshift_cluster_admin_password: %hub_openshift_cluster_admin_password%
+:hub_gitea_console_url: %hub_gitea_console_url%
+:hub_gitea_admin_username: %hub_gitea_admin_username%
+:hub_gitea_admin_password: %hub_gitea_admin_password%
+:hub_bastion_public_hostname: %hub_bastion_public_hostname%
+:hub_bastion_ssh_password: %hub_bastion_ssh_password%
+:hub_bastion_ssh_user_name: %hub_bastion_ssh_user_name%
+:hub_ssh_command: %hub_ssh_command%
+
+:primary_openshift_api_server_url: %primary_openshift_api_server_url%
+:primary_openshift_cluster_console_url: %primary_openshift_cluster_console_url%
+:primary_openshift_cluster_admin_username: %primary_openshift_cluster_admin_username%
+:primary_openshift_cluster_admin_password: %primary_openshift_cluster_admin_password%
+:primary_bastion_public_hostname: %primary_bastion_public_hostname%
+:primary_bastion_ssh_password: %primary_bastion_ssh_password%
+:primary_bastion_ssh_user_name: %primary_bastion_ssh_user_name%
+:primary_ssh_command: %primary_ssh_command%
+
+:secondary_openshift_api_server_url: %secondary_openshift_api_server_url%
+:secondary_openshift_cluster_console_url: %secondary_openshift_cluster_console_url%
+:secondary_openshift_cluster_admin_username: %secondary_openshift_cluster_admin_username%
+:secondary_openshift_cluster_admin_password: %secondary_openshift_cluster_admin_password%
+:secondary_bastion_public_hostname: %secondary_bastion_public_hostname%
+:secondary_bastion_ssh_user_name: %secondary_bastion_ssh_user_name%
+:secondary_bastion_ssh_password: %secondary_bastion_ssh_password%
+:secondary_ssh_command: %secondary_ssh_command%
+
+:toc:
+:toclevels: 4
+:icons: font
+:source-language: shell
+:numbered:
+// Activate experimental attribute for Keyboard Shortcut keys
+:experimental:
+:source-highlighter: pygments
+:hide-uri-scheme:
+
+== Introduction
+
+Regional-DR is composed of Red Hat Advanced Cluster Management for Kubernetes (RHACM) and OpenShift Data Foundation components to provide application and data mobility across OpenShift Container Platform clusters. It is built on Asynchronous data replication and hence could have a potential data loss but provides the protection against a broad set of failures.
+
+This Regional-DR solution provides an automated "one-click" recovery in the event of a regional disaster. The protected applications are automatically redeployed to a designated OpenShift Container Platform with OpenShift Data Foundation cluster that is available in another region.
+
+In this solution, Regional-DR leverages Red Hat OpenShift Data Foundation which is backed by Ceph as the storage provider, whose lifecycle is managed by Rook and it’s enhanced with the ability to:
+
+* Enable pools for mirroring.
+* Automatically mirror images across RBD pools.
+* Provides csi-addons to manage per Persistent Volume Claim mirroring.
+
+This release of Regional-DR supports Multi-Cluster configuration that is deployed across different regions and data centers. For example, a 2-way replication across two managed clusters located in two different regions or data centers. 
+
+The intent of this guide is to understand the implementation aspects necessary to be able to failover an application from one `OpenShift Container Platform` (OCP) cluster to another and then failback the same application to the original *primary cluster*. In this case the OCP clusters will be created or imported using *Red Hat Advanced Cluster Management* or `RHACM`. 
+
+This is a general overview of the steps required to configure and execute `OpenShift Disaster Recovery` (ODR) capabilities using OpenShift Data Foundation (ODF) *v4.12* and `RHACM` *v2.7* across two distinct OCP clusters separated by distance. In addition to these two cluster called `managed` clusters, there is currently a requirement to have a third OCP cluster that will be the `Advanced Cluster Management` (ACM) `hub` cluster.
+
+NOTE: These steps are considered Tech Preview in ODF 4.12 and are provided for POC (Proof of Concept) purposes. OpenShift `Regional Disaster Recovery` will be supported for production usage in a future release.
+
+[IMP]
+Configuring OpenShift Data Foundation for Regional-DR with Advanced Cluster Management is a Technology Preview feature and is subject to Technology Preview support limitations. Technology Preview features are not supported with Red Hat production service level agreements (SLAs) and might not be functionally complete. Red Hat does not recommend using them in production. These features provide early access to upcoming product features, enabling customers to test functionality and provide feedback during the development process.
+
+=== Regional-DR
+In this lab we will focus on Regional-DR. Regional-DR is composed of Red Hat Advanced Cluster Management for Kubernetes and OpenShift Data Foundation components to provide application and data mobility across Red Hat OpenShift Container Platform clusters
+
+=== Components of Regional-DR solution
+
+==== Red Hat Advanced Cluster Management for Kubernetes
+Red Hat Advanced Cluster Management (RHACM))provides the ability to manage multiple clusters and application lifecycles. Hence, it serves as a control plane in a multi-cluster environment.
+
+RHACM is split into two parts:
+
+* RHACM Hub: includes components that run on the multi-cluster control plane.
+* Managed clusters: includes components that run on the clusters that are managed.
+
+==== OpenShift Data Foundation
+OpenShift Data Foundation provides the ability to provision and manage storage for stateful applications in an OpenShift Container Platform cluster.
+
+OpenShift Data Foundation is backed by Ceph as the storage provider, whose lifecycle is managed by Rook in the OpenShift Data Foundation component stack. Ceph-CSI provides the provisioning and management of Persistent Volumes for stateful applications.
+
+OpenShift Data Foundation stack is now enhanced with the following abilities for disaster recovery:
+
+* Enable RBD block pools for mirroring across OpenShift Data Foundation instances (clusters)
+* Ability to mirror specific images within an RBD block pool
+* Provides csi-addons to manage per Persistent Volume Claim (PVC) mirroring
+
+==== OpenShift DR
+OpenShift DR is a set of orchestrators to configure and manage stateful applications across a set of peer OpenShift clusters which are managed using RHACM and provides cloud-native interfaces to orchestrate the life-cycle of an application’s state on Persistent Volumes. These include:
+
+* Protecting an application and its state relationship across OpenShift clusters
+* Failing over an application and its state to a peer cluster
+* Relocate an application and its state to the previously deployed cluster
+
+OpenShift DR is split into three components:
+
+* ODF Multicluster Orchestrator: Installed on the multi-cluster control plane (RHACM Hub), it orchestrates configuration and peering of OpenShift Data Foundation clusters for Metro and Regional DR relationships
+* OpenShift DR Hub Operator: Automatically installed as part of ODF Multicluster Orchestrator installation on the hub cluster to orchestrate failover or relocation of DR enabled applications.
+* OpenShift DR Cluster Operator: Automatically installed on each managed cluster that is part of a Metro and Regional DR relationship to manage the lifecycle of all PVCs of an application.
+
+=== Regional-DR deployment workflow 
+[NOTE] 
+Already implemented when this environment was provisioned. Here its mentioned for your understanding and exploration.
+
+This section provides an overview of the steps required to configure and deploy Regional-DR capabilities using latest version of Red Hat OpenShift Data Foundation across two distinct OpenShift Container Platform clusters. In addition to two managed clusters, a third OpenShift Container Platform cluster will be required to deploy the Red Hat Advanced Cluster Management (RHACM)
+
+This installation method requires you have three OpenShift clusters that have network reachability between them. For the purposes of this document we will use this reference for the clusters:
+
+* *Hub cluster* is where ACM, ODF Multisite-orchestrator and ODR Hub controllers are installed.
+* *Primary managed cluster* is where ODF, ODR Cluster controller, and Applications are installed.
+* *Secondary managed cluster* is where ODF, ODR Cluster controller, and Applications are installed.
+
+=== Steps just for understanding the implementation workflow
+These steps are already executed for you during the lab setup except for the application onboarding which is the next lab.
+
+[start=1]
+. *Install the ACM operator on the hub cluster.* +
+After creating the OCP hub cluster, install from OperatorHub the ACM operator. After the operator and associated pods are running, create the MultiClusterHub resource.
+. *Create or import managed OCP clusters into ACM hub.* +
+Import or create the two managed clusters with adequate resources for ODF (compute nodes, memory, cpu) using the RHACM console.
+. *Ensure clusters have unique private network address ranges.* +
+Ensure the primary and secondary OCP clusters have unique private network address ranges.
+. *Connect the private networks using Submariner add-ons.* +
+Connect the managed OCP private networks (cluster and service) using the RHACM Submariner add-ons.
+. *Install ODF 4.12 on managed clusters.* +
+Install ODF 4.12 on primary and secondary OCP managed clusters and validate deployment.
+. *Install ODF Multicluster Orchestrator on the ACM hub cluster.* +
+Install from OperatorHub on the ACM hub cluster the ODF Multicluster Orchestrator. The OpenShift DR Hub operator will also be installed.
+. *Configure SSL access between S3 endpoints* +
+If managed OpenShift clusters are not using valid certificates this step must be done by creating a new user-ca-bundle ConfigMap that contains the certs.
+. *Create one or more DRPolicy* +
+Use the All Clusters Data Services UI to create DRPolicy by selecting the two managed clusters the policy will apply to. 
+. *Validate OpenShift DR Cluster operators are installed.* +
+Once the first DRPolicy is created this will trigger the DR Cluster operators to be created on the two managed clusters selected in the UI.
+. *Following this we can setup an application using RHACM console and test failover/relocate.*
+* Create an application using RHACM console for highly available application across regions.
+* Test failover and reolcate operations using the sampole application between managed clusters.
+
+=== Review the implementation
+
+Lets start by reviewing the implementation and ensuring that everything is working fine so that we can deploy an application onto OpenShift and achieve Business Continuity leveraging Regional-DR.
+
+Logon to the Hub Cluster ACM console using your OpenShift credentials. Ensure that you use `htpasswd_provide` to login to OpenShift Console across all cluster's for all the lab modules.
+
+Go to the {hub_openshift_cluster_console_url}/[OpenShift
+console] and log in with your credentials username: {hub_openshift_cluster_admin_username} and password: {hub_openshift_cluster_admin_password}
+
+image:images/openshift-login.png[images/openshift-login.png]
+
+=== Verify Managed clusters are imported correctly
+Select All Clusters and verify that you can see local and two managed clusters - primnary and secondary
+
+image:images/ACM-all-cluster-hub.png[images/ACM-all-cluster-hub.png]
+
+=== Verify Managed clusters have non-overlapping networks
+
+In order to connect the OpenShift cluster and service networks using the `Submariner add-ons`, it is necessary to validate the two clusters have non-overlapping networks. This can be done by running the following command for each of the managed clusters and check the spec section as shown below. Accept insecure connection as we know its the managed cluster in the lab environment.
+
+For that you have a terminal window along with your workshop modules. You can use api login to respective cluster.
+If you want you can also ssh to each cluster separately using mutliple terminal windows outside of this browser based termninal window.
+
+For primary :
+[source,role="execute"]
+----
+oc login -u %primary_openshift_cluster_admin_username% -p %primary_openshift_cluster_admin_password% %primary_openshift_api_server_url%
+----
+
+[source,role="execute"]
+----
+oc get networks.config.openshift.io cluster -o json | jq .spec
+----
+.Example output for ocp4bos1:
+[source,json]
+----
+{
+  "clusterNetwork": [
+    {
+      "cidr": "10.128.0.0/14",
+      "hostPrefix": 23
+    }
+  ],
+  "externalIP": {
+    "policy": {}
+  },
+  "networkType": "OpenShiftSDN",
+  "serviceNetwork": [
+    "172.30.0.0/16"
+  ]
+}
+----
+
+For Secondary:
+[source,role="execute"]
+----
+oc login -u %secondary_openshift_cluster_admin_username% -p %secondary_openshift_cluster_admin_password% %secondary_openshift_api_server_url%
+----
+
+[source,role="execute"]
+----
+oc get networks.config.openshift.io cluster -o json | jq .spec
+----
+
+.Example output for ocp4bos2:
+[source,json]
+----
+{
+  "clusterNetwork": [
+    {
+      "cidr": "10.200.0.0/14",
+      "hostPrefix": 23
+    }
+  ],
+  "externalIP": {
+    "policy": {}
+  },
+  "networkType": "OpenShiftSDN",
+  "serviceNetwork": [
+    "172.31.0.0/16"
+  ]
+}
+----
+
+These outputs show that the two example managed clusters have non-overlapping `clusterNetwork` and `serviceNetwork` ranges so it is safe to proceed.
+
+=== Verify that the Managed clusters using Submariner add-ons are fine
+
+Now that we know the `cluster` and `service` networks have non-overlapping ranges, it is time to verify the `Submariner add-ons` for each managed cluster. This is done by using the ACM console and `Cluster sets`.
+
+Logon to the Hub Cluster ACM console using your OpenShift credentials. 
+
+Go to the *{hub_openshift_cluster_console_url}/[OpenShift console]* and log in with your credentials username: *{hub_openshift_cluster_admin_username}* and password: *{hub_openshift_cluster_admin_password}*
+
+image:images/openshift-login.png[images/openshift-login.png]
+
+Navigate and Click `ALL CLUSTERS`, then go to `InfraSturcture`, `Clusters`, select `Cluster Sets` tab and in cluster sets select `clusterset1` and `Submariner add-ons` tab. A successful deployment will show `Connection status` and `Agent status` as `Healthy` for both `primary` and `secondary`.
+
+.ACM Submariner add-ons installed
+image:images/ACM-Submariner-addon-installed.png[ACM Submariner add-ons installed]
+
+== OpenShift Data Foundation Review
+
+In order to configure storage replication between the two OCP clusters `OpenShift Data Foundation` (ODF) must be installed first on each managed cluster. ODF version *4.12* is installed on both OCP managed clusters.
+
+You can validate the successful deployment of ODF on each managed OCP cluster with the following command:
+For primary :
+[source,role="execute"]
+----
+oc login -u %primary_openshift_cluster_admin_username% -p %primary_openshift_cluster_admin_password% %primary_openshift_api_server_url%
+----
+
+[source,role="execute"]
+----
+oc get storagecluster -n openshift-storage ocs-storagecluster -o jsonpath='{.status.phase}{"\n"}'
+----
+
+And for the Multi-Cluster Gateway (MCG):
+
+[source,role="execute"]
+----
+oc get noobaa -n openshift-storage noobaa -o jsonpath='{.status.phase}{"\n"}'
+----
+
+For Secondary:
+[source,role="execute"]
+----
+oc login -u %secondary_openshift_cluster_admin_username% -p %secondary_openshift_cluster_admin_password% %secondary_openshift_api_server_url%
+----
+
+[source,role="execute"]
+----
+oc get storagecluster -n openshift-storage ocs-storagecluster -o jsonpath='{.status.phase}{"\n"}'
+----
+
+And for the Multi-Cluster Gateway (MCG):
+
+[source,role="execute"]
+----
+oc get noobaa -n openshift-storage noobaa -o jsonpath='{.status.phase}{"\n"}'
+----
+
+Verify that the result is `Ready` for both queries on the *Primary managed cluster* and the *Secondary managed cluster*.
+
+NOTE: The successful installation of ODF can also be validated in the *OCP Web Console* by navigating to *Storage* and then *Data Foundation*.
+
+== Verify ODF Multicluster Orchestrator Operator on Hub cluster
+
+Check to see the following operators *Pod* are in a `Running` state. You may also see other operator pods which are not related to Regional DR configuration.
+
+For Hub:
+[source,role="execute"]
+----
+oc login -u %hub_openshift_cluster_admin_username% -p %hub_openshift_cluster_admin_password% %hub_openshift_api_server_url%
+----
+
+[source,role="execute"]
+----
+oc get pods -n openshift-operators
+----
+.Example output.
+----
+NAME                                       READY   STATUS    RESTARTS   AGE
+
+odfmo-controller-manager-f6fc95f7f-7wtjl   1/1     Running   0          4m14s
+ramen-hub-operator-85465bd487-7sl2k        2/2     Running   0          3m40s
+odf-multicluster-console-76b88b444c-vl9s4  1/1     Running   0          3m50s
+----
+
+== SSL access between S3 endpoints is configured in this Lab Environment
+
+This is necessary so that metadata can be stored on the alternate cluster in a Multi-Cloud Gateway (MCG) object bucket using a secure transport protocol and in addition the *Hub cluster* needs to verify access to the object buckets.
+
+NOTE: If all of your OpenShift clusters are deployed using signed and valid set of certificates for your environment then this specific step can be skipped during implementation.
+
+== Review Data Policy on Hub cluster
+
+Regional Disaster Recovery uses the *DRPolicy* resources on the *Hub cluster* to failover and relocate workloads across managed clusters. A *DRPolicy* requires a set of two *DRClusters* or peer clusters with *ODF* version 4.12 installed. The `ODF MultiCluster Orchestrator Operator` facilitates the creation of each *DRPolicy* and the corresponding *DRClusters* through the *Multicluster Web console*.
+
+On the *Hub cluster* navigate and select `All Clusters`. Then select *Data policies* under Data services menu. If this your first *DRPolicy* created you will see *Create DRpolicy* at the bottom of the page, else you will the the already created DRPolicy.
+
+IMPORTANT: Make sure you can access all clusters from the *Multicluster Web console*. The clusters will be directly below `All Clusters`.
+
+Click on *Data policies* and review the already created drpolicy named `drsync5m` 
+
+.DRPolicy check
+image:images/MCO-drpolicy-selections.png[DRPolicy check]
+
+Note that the `Replication policy` will automatically be selected as *async* based on the OpenShift clusters selected and a *Sync schedule* will be available. The replication interval for this dr policy is 5 minutes. You can check by clicking 3 dots on the right side of drsync5m data policy and select Edit DR Policy. Please do not update anything here, once you review the content of the yaml file, just cancel the selection so that there is no update to the DR Policy.
+
+NOTE: For every desired replication interval a new *DRPolicy* needs to be created with a unique name (i.e., drsync5m). The same clusters could be selected but the *Sync schedule* would be configured with a different replication interval in minutes. The minimum is one minute.
+
+Creating a new DR Policy also creates the two *DRCluster* resources and also the *DRPolicy* on the *Hub cluster*. In addition, when the initial *DRPolicy* is created the following will happen:
+
+* Create a bootstrap token and exchanges this token between the managed clusters.
+* Enable mirroring for the default `CephBlockPool` on each managed clusters.
+* Create a *VolumeReplicationClass* on the *Primary managed cluster* and the *Secondary managed cluster* for the replication interval in the DRPolicy.
+* An object bucket created (using MCG) on each managed cluster for storing *PVC* and *PV* metadata.
+* A *Secret* created in the `openshift-operators` project on the *Hub cluster* for each new object bucket that has the base64 encoded access keys.
+* The `ramen-hub-operator-config` *ConfigMap* on the *Hub cluster* is modified with `s3StoreProfiles` entries.
+* The `OpenShift DR Cluster` operator will be deployed on each managed cluster in the `openshift-dr-system` project.
+* The object buckets *Secrets* on the *Hub cluster* in the project `openshift-operators` will be copied to the managed clusters in the `openshift-dr-system` project.
+* The `s3StoreProfiles` entries will be copied to the managed clusters and used to modify the `ramen-dr-cluster-operator-config` *ConfigMap* in the `openshift-dr-system` project.
+
+To validate that the *DRPolicy* is created successfully run this command on the *Hub cluster* for the each *Data Policy* resource created. 
+
+NOTE: Replace `<drpolicy_name>` with your unique name.
+
+For Hub (drpolicy name is drsync5m):
+[source,role="execute"]
+----
+oc login -u %hub_openshift_cluster_admin_username% -p %hub_openshift_cluster_admin_password% %hub_openshift_api_server_url%
+----
+
+[source,role="execute"]
+----
+oc get drpolicy drsync5m -o jsonpath='{.status.conditions[].reason}{"\n"}'
+----
+.Example output.
+----
+Succeeded
+----
+
+To validate object bucket access from the *Hub cluster* to both the *Primary managed cluster* and the *Secondary managed cluster* first get the names of the *DRClusters* on the *Hub cluster*.
+
+[source,role="execute"]
+----
+oc get drclusters
+----
+.Example output.
+----
+NAME        AGE
+primary     4m42s
+secondary   4m42s
+----
+
+Now test S3 access to each bucket created on each managed cluster using this *DRCluster* validation command.
+
+NOTE: Replace `<drcluster_name>` with your unique name.
+
+[source,role="execute"]
+----
+oc get drcluster primary -o jsonpath='{.status.conditions[2].reason}{"\n"}'
+----
+.Example output.
+----
+Succeeded
+----
+
+[source,role="execute"]
+----
+oc get drcluster secondary -o jsonpath='{.status.conditions[2].reason}{"\n"}'
+----
+.Example output.
+----
+Succeeded
+----
+
+NOTE: Make sure to run command for both *DRClusters* on the *Hub cluster*.
+
+To validate that the `OpenShift DR Cluster` operator installation was successful on the *Primary managed cluster* and the *Secondary managed cluster* check for CSV `odr-cluster-operator` and pod `ramen-dr-cluster-operator` by running the following command:
+
+For primary :
+[source,role="execute"]
+----
+oc login -u %primary_openshift_cluster_admin_username% -p %primary_openshift_cluster_admin_password% %primary_openshift_api_server_url%
+----
+[source,role="execute"]
+----
+oc get csv,pod -n openshift-dr-system
+----
+.Example output.
+----
+NAME                                                                      DISPLAY                         VERSION   REPLACES   PHASE
+clusterserviceversion.operators.coreos.com/odr-cluster-operator.v4.11.0   Openshift DR Cluster Operator   4.11.0               Succeeded
+
+NAME                                             READY   STATUS    RESTARTS   AGE
+pod/ramen-dr-cluster-operator-5564f9d669-f6lbc   2/2     Running   0          5m32s
+----
+
+For Secondary:
+[source,role="execute"]
+----
+oc login -u %secondary_openshift_cluster_admin_username% -p %secondary_openshift_cluster_admin_password% %secondary_openshift_api_server_url%
+----
+
+[source,role="execute"]
+----
+oc get csv,pod -n openshift-dr-system
+----
+.Example output.
+----
+NAME                                                                      DISPLAY                         VERSION   REPLACES   PHASE
+clusterserviceversion.operators.coreos.com/odr-cluster-operator.v4.11.0   Openshift DR Cluster Operator   4.11.0               Succeeded
+
+NAME                                             READY   STATUS    RESTARTS   AGE
+pod/ramen-dr-cluster-operator-5564f9d669-f6lbc   2/2     Running   0          5m32s
+----
+
+You can also go to *OperatorHub* on each of the managed clusters and look to see the `OpenShift DR Cluster Operator` is installed.
+
+.ODR Cluster Operator
+image:images/ODR-412-Cluster-operator.png[ODR Cluster Operator]
+
+Validate the status of the *ODF* mirroring `daemon` health on the *Primary managed cluster* and the *Secondary managed cluster*.
+
+For Primary:
+[source,role="execute"]
+----
+oc login -u %primary_openshift_cluster_admin_username% -p %primary_openshift_cluster_admin_password% %primary_openshift_api_server_url%
+----
+
+[source,role="execute"]
+----
+oc get cephblockpool ocs-storagecluster-cephblockpool -n openshift-storage -o jsonpath='{.status.mirroringStatus.summary}{"\n"}'
+----
+.Example output.
+----
+{"daemon_health":"OK","health":"OK","image_health":"OK","states":{}}
+----
+
+For Secondary:
+[source,role="execute"]
+----
+oc login -u %secondary_openshift_cluster_admin_username% -p %secondary_openshift_cluster_admin_password% %secondary_openshift_api_server_url%
+----
+
+[source,role="execute"]
+----
+oc get cephblockpool ocs-storagecluster-cephblockpool -n openshift-storage -o jsonpath='{.status.mirroringStatus.summary}{"\n"}'
+----
+.Example output.
+----
+{"daemon_health":"OK","health":"OK","image_health":"OK","states":{}}
+----
+
+CAUTION: It could take up to 10 minutes for the `daemon_health` and `health` to go from *Warning* to *OK*. If the status does not become *OK* eventually then use the ACM console to verify that the `Submariner` connection between managed clusters is still in a healthy state. 
+
+Now we are ready to deploy our real life application and ensure that it failover as well as failback(relocate) successfully while maintaining persistent data consistency and availability.

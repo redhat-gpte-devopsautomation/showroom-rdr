@@ -1,0 +1,183 @@
+:hub_openshift_api_server_url: %hub_openshift_api_server_url%
+:hub_openshift_cluster_console_url: %hub_openshift_cluster_console_url%
+:hub_openshift_cluster_admin_username: %hub_openshift_cluster_admin_username%
+:hub_openshift_cluster_admin_password: %hub_openshift_cluster_admin_password%
+:hub_gitea_console_url: %hub_gitea_console_url%
+:hub_gitea_admin_username: %hub_gitea_admin_username%
+:hub_gitea_admin_password: %hub_gitea_admin_password%
+:hub_bastion_public_hostname: %hub_bastion_public_hostname%
+:hub_bastion_ssh_password: %hub_bastion_ssh_password%
+:hub_bastion_ssh_user_name: %hub_bastion_ssh_user_name%
+:hub_ssh_command: %hub_ssh_command%
+
+:primary_openshift_api_server_url: %primary_openshift_api_server_url%
+
+:primary_openshift_cluster_console_url: %primary_openshift_cluster_console_url%
+:primary_openshift_cluster_admin_username: %primary_openshift_cluster_admin_username%
+:primary_openshift_cluster_admin_password: %primary_openshift_cluster_admin_password%
+:primary_bastion_public_hostname: %primary_bastion_public_hostname%
+:primary_bastion_ssh_password: %primary_bastion_ssh_password%
+:primary_bastion_ssh_user_name: %primary_bastion_ssh_user_name%
+:primary_ssh_command: %primary_ssh_command%
+
+:secondary_openshift_api_server_url: %secondary_openshift_api_server_url%
+:secondary_openshift_cluster_console_url: %secondary_openshift_cluster_console_url%
+:secondary_openshift_cluster_admin_username: %secondary_openshift_cluster_admin_username%
+:secondary_openshift_cluster_admin_password: %secondary_openshift_cluster_admin_password%
+:secondary_bastion_public_hostname: %secondary_bastion_public_hostname%
+:secondary_bastion_ssh_user_name: %secondary_bastion_ssh_user_name%
+:secondary_bastion_ssh_password: %secondary_bastion_ssh_password%
+:secondary_ssh_command: %secondary_ssh_command%
+
+
+=== Create Application On Primary
+
+[arabic]
+. Go to the {hub_openshift_cluster_console_url}/[Hub OpenShift
+console] and log in with your credentials username: {hub_openshift_cluster_admin_username} and password: {hub_openshift_cluster_admin_password}.
++
+image:images/openshift-login.png[images/openshift-login.png]
+. Upon successful login, you will see the Red Hat OpenShift Dedicated environment. This is a kubernetes platform from which you can create containerized applications. Part of this environment is the Red Hat Advanced Cluster Management (RHACM) platform along with Red Hat Openshift Disaster Recovery with ODF. To get started, you will need to access the RHACM plaftorm by clicking *local-cluster* from the left menu and then selecting *All Clusters*.
++
+image:images/openshift-acm-menu.png[images/openshift-acm-menu.png]
+. Upon clicking the *All Cluster* option, you will be redirected to the RHACM console displaying your available clusters.  There are 3 clusters available:
+... local-cluster: This is your management cluster where you will create, failover and relocate your application.
+... primary: Your main cluster where your applications are initially deployed to.
+... secondary: Your backup cluster where your applications are failed over to.
++
+image:images/rhacm-clusters.png[images/rhacm-clusters.png]
++
+. You will now need to create your application which we will use in this workshop.  Click on *Applications* on the left menu and click *Create application->Subscription*
++
+image:images/rhacm-create-application.png[images/rhacm-create-application.png]
+. Once in the *Create application* wizard, enter the following details:
+.. *Name*: globex
+.. *Namespace*: globex
+.. Under *Repository location for resources*:
+... *Repository Types*: Git
+... *URL*: https://github.com/redhat-gpte-devopsautomation/globex.git
+... *Branch*: main
+.. Under *Select clusters for application deployment*:
+... Select *Deploy application resources on clusters with all specified labels*
+.... *Label*: name
+.... *Value*: primary
+.. Your yaml on the right of your screen should look like this:
++
+[source, yaml]
+----
+apiVersion: v1                    
+kind: Namespace
+metadata:
+  name: globex                             
+---
+apiVersion: app.k8s.io/v1beta1
+kind: Application
+metadata:
+  name: globex
+  namespace: globex
+spec:
+  componentKinds:
+  - group: apps.open-cluster-management.io
+    kind: Subscription
+  descriptor: {}
+  selector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values: 
+          - globex
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ggithubcom-redhat-gpte-devopsautomation-globex-ns
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: Channel
+metadata:
+  annotations:
+    apps.open-cluster-management.io/reconcile-rate: medium
+  name: ggithubcom-redhat-gpte-devopsautomation-globex
+  namespace: ggithubcom-redhat-gpte-devopsautomation-globex-ns
+spec:
+  type: Git
+  pathname: 'https://github.com/redhat-gpte-devopsautomation/globex.git'
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: Subscription
+metadata:
+  annotations:
+    apps.open-cluster-management.io/git-branch: main
+    apps.open-cluster-management.io/git-path: 
+    apps.open-cluster-management.io/reconcile-option: merge
+  labels:
+    app: globex
+  name: globex-subscription-1
+  namespace: globex
+spec:
+  channel: ggithubcom-redhat-gpte-devopsautomation-globex-ns/ggithubcom-redhat-gpte-devopsautomation-globex
+  placement:
+    placementRef:
+      kind: PlacementRule
+      name: globex-placement-1
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: PlacementRule
+metadata:
+  labels:
+    app: globex
+  name: globex-placement-1
+  namespace: globex
+spec:
+  clusterSelector:
+    matchLabels:
+      'name': 'primary'
+----
+.. Click *Create* on the top right to create your application.  This should create an ACM application subscription which in turn creates a Helm release which will deploy your application to the primary cluster.
++
+.ACM Application Subscription
+image::images/rhacm-application.png["ACM Application Subscription"]
++
+. Go back to Applications and search for globex-app. This is where you will see the app deployment topology.
+Following are not part of existing deployment and hence not deployed. Hence they will be marked as not available: acivity-tracking, order-placement and recommendation-engine. 
+The app is focused on catalog, inventor and UI.
++
+.Helm Release for Globex
+image::images/rhacm-helm-release.png["Helm Release for Globex"]
++
+. Open another browser window and login to the *primary* cluster {primary_openshift_cluster_console_url}/[Primary OpenShift
+console] and log in with your credentials username: {primary_openshift_cluster_admin_username} and password: {primary_openshift_cluster_admin_password}.
++
+image:images/openshift-login.png[images/openshift-login.png]
++
+. Once logged in click *Networking->Routes* on the left menu.  Ensure your selected project is *globex* and then click on the *Location* link of the *globex-ui* route.
++
+image:images/primary-globex-route.png[images/primary-globex-route.png]
++
+. Once you've clicked the link you will be redirected to globex online store front end.  Select *Cool Stuff Store* at the top of the page.
++
+image:images/primary-globex-landing.png[images/primary-globex-landing.png]
++
+. You can also get route from terminal window which you see on the right side of your instruction guide, login to the primary cluster api link:{primary_openshift_cluster_console_url}[Primary Cluster OpenShift Cluster API link] with your credentials username: {primary_openshift_cluster_admin_username} and password: {primary_openshift_cluster_admin_password}.
++
+[source,role="execute"]
+----
+oc login -u %primary_openshift_cluster_admin_username% -p %primary_openshift_cluster_admin_password% %primary_openshift_api_server_url%
+----
++
+. You are now going to get the route of globex-ui and copy the route for example *globex-ui-globex.apps.cluster-flxz7-2.sandbox2418.opentlc.com* and paste in a browser window to get the coolstore app UI. This is the same route you can see from previous step by login to OpenShift Console:
++
+[source,role="execute"]
+----
+oc get route -n globex | grep globex-ui
+----
++
+.Example output.
+----
+globex-ui                     globex-ui-globex.apps.cluster-flxz7-2.sandbox2418.opentlc.com
+  globex-ui                     http   edge/Redirect   None
+----
++
+. A list of store items will be presented to you.  Take note of the price of the first item *Quarkus T-shirt*.  Later you will change the price before you initiate a failover and ensure that the new price carries over to the secondary cluster.
++
+image:images/primary-globex-items.png[images/primary-globex-items.png]
