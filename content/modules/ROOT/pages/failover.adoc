@@ -1,32 +1,32 @@
-:hub_openshift_api_server_url: %hub_openshift_api_server_url%
-:hub_openshift_cluster_console_url: %hub_openshift_cluster_console_url%
-:hub_openshift_cluster_admin_username: %hub_openshift_cluster_admin_username%
-:hub_openshift_cluster_admin_password: %hub_openshift_cluster_admin_password%
-:hub_gitea_console_url: %hub_gitea_console_url%
-:hub_gitea_admin_username: %hub_gitea_admin_username%
-:hub_gitea_admin_password: %hub_gitea_admin_password%
-:hub_bastion_public_hostname: %hub_bastion_public_hostname%
-:hub_bastion_ssh_password: %hub_bastion_ssh_password%
-:hub_bastion_ssh_user_name: %hub_bastion_ssh_user_name%
-:hub_ssh_command: %hub_ssh_command%
+:hub_openshift_api_server_url: %hub_cluster_openshift_api_server_url%
+:hub_openshift_cluster_console_url: %hub_cluster_openshift_cluster_console_url%
+:hub_openshift_cluster_admin_username: %hub_cluster_openshift_cluster_admin_username%
+:hub_openshift_cluster_admin_password: %hub_cluster_openshift_cluster_admin_password%
+:hub_gitea_console_url: %hub_cluster_gitea_console_url%
+:hub_gitea_admin_username: %hub_cluster_gitea_admin_username%
+:hub_gitea_admin_password: %hub_cluster_gitea_admin_password%
+:hub_bastion_public_hostname: %hub_cluster_bastion_public_hostname%
+:hub_bastion_ssh_password: %hub_cluster_bastion_ssh_password%
+:hub_bastion_ssh_user_name: %hub_cluster_bastion_ssh_user_name%
+:hub_ssh_command: %hub_cluster_ssh_command%
 
-:primary_openshift_api_server_url: %primary_openshift_api_server_url%
-:primary_openshift_cluster_console_url: %primary_openshift_cluster_console_url%
-:primary_openshift_cluster_admin_username: %primary_openshift_cluster_admin_username%
-:primary_openshift_cluster_admin_password: %primary_openshift_cluster_admin_password%
-:primary_bastion_public_hostname: %primary_bastion_public_hostname%
-:primary_bastion_ssh_password: %primary_bastion_ssh_password%
-:primary_bastion_ssh_user_name: %primary_bastion_ssh_user_name%
-:primary_ssh_command: %primary_ssh_command%
+:primary_openshift_api_server_url: %primary_cluster_openshift_api_server_url%
+:primary_openshift_cluster_console_url: %primary_cluster_openshift_cluster_console_url%
+:primary_openshift_cluster_admin_username: %primary_cluster_openshift_cluster_admin_username%
+:primary_openshift_cluster_admin_password: %primary_cluster_openshift_cluster_admin_password%
+:primary_bastion_public_hostname: %primary_cluster_bastion_public_hostname%
+:primary_bastion_ssh_password: %primary_cluster_bastion_ssh_password%
+:primary_bastion_ssh_user_name: %primary_cluster_bastion_ssh_user_name%
+:primary_ssh_command: %primary_cluster_ssh_command%
 
-:secondary_openshift_api_server_url: %secondary_openshift_api_server_url%
-:secondary_openshift_cluster_console_url: %secondary_openshift_cluster_console_url%
-:secondary_openshift_cluster_admin_username: %secondary_openshift_cluster_admin_username%
-:secondary_openshift_cluster_admin_password: %secondary_openshift_cluster_admin_password%
-:secondary_bastion_public_hostname: %secondary_bastion_public_hostname%
-:secondary_bastion_ssh_user_name: %secondary_bastion_ssh_user_name%
-:secondary_bastion_ssh_password: %secondary_bastion_ssh_password%
-:secondary_ssh_command: %secondary_ssh_command%
+:secondary_openshift_api_server_url: %secondary_cluster_openshift_api_server_url%
+:secondary_openshift_cluster_console_url: %secondary_cluster_openshift_cluster_console_url%
+:secondary_openshift_cluster_admin_username: %secondary_cluster_openshift_cluster_admin_username%
+:secondary_openshift_cluster_admin_password: %secondary_cluster_openshift_cluster_admin_password%
+:secondary_bastion_public_hostname: %secondary_cluster_bastion_public_hostname%
+:secondary_bastion_ssh_user_name: %secondary_cluster_bastion_ssh_user_name%
+:secondary_bastion_ssh_password: %secondary_cluster_bastion_ssh_password%
+:secondary_ssh_command: %secondary_cluster_ssh_command%
 
 === Failover Application To Secondary
 
@@ -48,18 +48,18 @@ oc exec -it $POD -n globex -- psql --dbname catalog --command "update catalog se
 +
 . Switch back to the Globex application and refresh the page.  Select the last page (6) and notice that the price of the Quarkust T-shirt is now *$15.00*
 +
-image:images/primary-globex-item-updated.png[images/primary-globex-item-updated.png]
+image:primary-globex-item-updated.png[primary-globex-item-updated.png]
 +
 . Return to the RHACM Hub console and then click *Data Services->Data policies* from the left menu.
 +
-image:images/rhacm-data-policies.png[images/rhacm-data-policies.png]
+image:rhacm-data-policies.png[rhacm-data-policies.png]
 +
 . Click on the 3 dots on the *drsync5m* disaster recovery policy and select *Apply DRPolicy*.
-image:images/rhacm-apply-dr-policy.png[imagesrhacm-apply-dr-policy.png]
+image:rhacm-apply-dr-policy.png[imagesrhacm-apply-dr-policy.png]
 +
 . On the *Apply DRPolicy* popup, select the *globex* application and under *PVC label* enter *app=globex*.  These options allow the globex application to be included in the DR policy and preserves any PVC's with a label matching *app=globex*, in our case the PVC associated with the postgres database containing our prices.  Click *Apply*.
 +
-image:images/rhacm-save-dr-policy.png[images/rhacm-save-dr-policy.png]
+image:rhacm-save-dr-policy.png[rhacm-save-dr-policy.png]
 +
 . In the terminal session, login to the secondary cluster {secondary_openshift_api_server_url} with your credentials username: {secondary_openshift_cluster_admin_username} and password: {secondary_openshift_cluster_admin_password}.
 +
@@ -78,20 +78,20 @@ oc annotate ns globex --overwrite=true apps.open-cluster-management.io/hosting-s
 +
 . Switch back to the RHACM console and select *Applications* and filter on *Subscription*.  Click the 3 dots at the end of the *globex* application and select *Failover application*.
 +
-image:images/rhacm-failover-menu.png[images/rhacm-failover-menu.png]
+image:rhacm-failover-menu.png[rhacm-failover-menu.png]
 +
 . Provide the following details on the popup:
 .. *Select policy*: drsync5m
 .. *Target cluster*: secondary
 .. *Select subscriptions group*: globex-subscription-1
 +
-image:images/rhacm-failover-application.png[images/rhacm-failover-application.png]
+image:rhacm-failover-application.png[rhacm-failover-application.png]
 +
 NOTE: The subscription group may not be in a ready state to select.  Wait a few minutes and try again.
 .. Click *Initiate*
 . You will notice that the pods on the primary cluster in the *globex* namespace will start terminating as the app starts failing over. Also check that the PVC will be in terminating state as well. Ensure that PVC is terminated and not visible on the primary.
 +
-image:images/primary-pods-terminated.png[images/primary-pods-terminated.png]
+image:primary-pods-terminated.png[primary-pods-terminated.png]
 +
 Review the status of the pvc (terminating) and the cephblockpool on primary. The health may be temporary in warning state and then goes back to healthy state:
 +
@@ -126,19 +126,19 @@ inventory-database   Terminating   pvc-fda1a2a3-cb5a-495d-b9c0-47ab95bba2c7   5G
 +
 . Open another browser window and login to the *secondary* cluster link:{secondary_openshift_cluster_console_url}[Secondary Cluster OpenShift console] and log in with your credentials username: {secondary_openshift_cluster_admin_username} and password: {secondary_openshift_cluster_admin_password}.
 +
-image:images/openshift-login.png[images/openshift-login.png]
+image:openshift-login.png[openshift-login.png]
 +
 . Once logged in click *Workloads->Pods* on the left menu.  Ensure your selected project is *globex*.  Notice that the application pods have been recreated in this namespace.
 +
-image:images/secondary-pods-created.png[images/secondary-pods-created.png]
+image:secondary-pods-created.png[secondary-pods-created.png]
 +
 . Next, click *Networking->Routes* on the left menu and then click on the *Location* link of the *globex-ui* route.
 +
-image:images/secondary-globex-route.png[images/secondary-globex-route.png]
+image:secondary-globex-route.png[secondary-globex-route.png]
 +
 . Once you've clicked the link you will be redirected to globex online store front end.  Select *Cool Stuff Store* at the top of the page.
 +
-image:images/primary-globex-landing.png[images/primary-globex-landing.png]
+image:primary-globex-landing.png[primary-globex-landing.png]
 +
 . You can also get route from terminal window which you see on the right side of your instruction guide, login to the secondary cluster api link:{secondary_openshift_cluster_console_url}[Secondary Cluster OpenShift Cluster API link] with your credentials username: {secondary_openshift_cluster_admin_username} and password: {secondary_openshift_cluster_admin_password}.
 +
@@ -162,7 +162,7 @@ globex-ui                     globex-ui-globex.apps.cluster-flxz7-2.sandbox2418.
 +
 . On the Coolstore Globex UI, select the last page (6) and notice that the price of the Quarkust T-shirt is *$15.00*.  Our data from the primary cluster has been preserved during the failover.
 +
-image:images/secondary-price-preserved.png[images/secondary-price-preserved.png]
+image:secondary-price-preserved.png[secondary-price-preserved.png]
 +
 Review the status of the pvc and the cephblockpool on secondary. The health may be temporary in warning state and then goes back to healthy state. You may also see `states:map[replaying:2]`:
 +

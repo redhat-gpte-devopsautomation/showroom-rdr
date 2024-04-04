@@ -1,32 +1,32 @@
-:hub_openshift_api_server_url: %hub_openshift_api_server_url%
-:hub_openshift_cluster_console_url: %hub_openshift_cluster_console_url%
-:hub_openshift_cluster_admin_username: %hub_openshift_cluster_admin_username%
-:hub_openshift_cluster_admin_password: %hub_openshift_cluster_admin_password%
-:hub_gitea_console_url: %hub_gitea_console_url%
-:hub_gitea_admin_username: %hub_gitea_admin_username%
-:hub_gitea_admin_password: %hub_gitea_admin_password%
-:hub_bastion_public_hostname: %hub_bastion_public_hostname%
-:hub_bastion_ssh_password: %hub_bastion_ssh_password%
-:hub_bastion_ssh_user_name: %hub_bastion_ssh_user_name%
-:hub_ssh_command: %hub_ssh_command%
+:hub_openshift_api_server_url: %hub_cluster_openshift_api_server_url%
+:hub_openshift_cluster_console_url: %hub_cluster_openshift_cluster_console_url%
+:hub_openshift_cluster_admin_username: %hub_cluster_openshift_cluster_admin_username%
+:hub_openshift_cluster_admin_password: %hub_cluster_openshift_cluster_admin_password%
+:hub_gitea_console_url: %hub_cluster_gitea_console_url%
+:hub_gitea_admin_username: %hub_cluster_gitea_admin_username%
+:hub_gitea_admin_password: %hub_cluster_gitea_admin_password%
+:hub_bastion_public_hostname: %hub_cluster_bastion_public_hostname%
+:hub_bastion_ssh_password: %hub_cluster_bastion_ssh_password%
+:hub_bastion_ssh_user_name: %hub_cluster_bastion_ssh_user_name%
+:hub_ssh_command: %hub_cluster_ssh_command%
 
-:primary_openshift_api_server_url: %primary_openshift_api_server_url%
-:primary_openshift_cluster_console_url: %primary_openshift_cluster_console_url%
-:primary_openshift_cluster_admin_username: %primary_openshift_cluster_admin_username%
-:primary_openshift_cluster_admin_password: %primary_openshift_cluster_admin_password%
-:primary_bastion_public_hostname: %primary_bastion_public_hostname%
-:primary_bastion_ssh_password: %primary_bastion_ssh_password%
-:primary_bastion_ssh_user_name: %primary_bastion_ssh_user_name%
-:primary_ssh_command: %primary_ssh_command%
+:primary_openshift_api_server_url: %primary_cluster_openshift_api_server_url%
+:primary_openshift_cluster_console_url: %primary_cluster_openshift_cluster_console_url%
+:primary_openshift_cluster_admin_username: %primary_cluster_openshift_cluster_admin_username%
+:primary_openshift_cluster_admin_password: %primary_cluster_openshift_cluster_admin_password%
+:primary_bastion_public_hostname: %primary_cluster_bastion_public_hostname%
+:primary_bastion_ssh_password: %primary_cluster_bastion_ssh_password%
+:primary_bastion_ssh_user_name: %primary_cluster_bastion_ssh_user_name%
+:primary_ssh_command: %primary_cluster_ssh_command%
 
-:secondary_openshift_api_server_url: %secondary_openshift_api_server_url%
-:secondary_openshift_cluster_console_url: %secondary_openshift_cluster_console_url%
-:secondary_openshift_cluster_admin_username: %secondary_openshift_cluster_admin_username%
-:secondary_openshift_cluster_admin_password: %secondary_openshift_cluster_admin_password%
-:secondary_bastion_public_hostname: %secondary_bastion_public_hostname%
-:secondary_bastion_ssh_user_name: %secondary_bastion_ssh_user_name%
-:secondary_bastion_ssh_password: %secondary_bastion_ssh_password%
-:secondary_ssh_command: %secondary_ssh_command%
+:secondary_openshift_api_server_url: %secondary_cluster_openshift_api_server_url%
+:secondary_openshift_cluster_console_url: %secondary_cluster_openshift_cluster_console_url%
+:secondary_openshift_cluster_admin_username: %secondary_cluster_openshift_cluster_admin_username%
+:secondary_openshift_cluster_admin_password: %secondary_cluster_openshift_cluster_admin_password%
+:secondary_bastion_public_hostname: %secondary_cluster_bastion_public_hostname%
+:secondary_bastion_ssh_user_name: %secondary_cluster_bastion_ssh_user_name%
+:secondary_bastion_ssh_password: %secondary_cluster_bastion_ssh_password%
+:secondary_ssh_command: %secondary_cluster_ssh_command%
 
 :toc:
 :toclevels: 4
@@ -145,12 +145,12 @@ Logon to the Hub Cluster ACM console using your OpenShift credentials. Ensure th
 Go to the {hub_openshift_cluster_console_url}/[OpenShift
 console] and log in with your credentials username: {hub_openshift_cluster_admin_username} and password: {hub_openshift_cluster_admin_password}
 
-image:images/openshift-login.png[images/openshift-login.png]
+image:openshift-login.png[openshift-login.png]
 
 === Verify Managed clusters are imported correctly
 Select All Clusters and verify that you can see local and two managed clusters - primnary and secondary
 
-image:images/ACM-all-cluster-hub.png[images/ACM-all-cluster-hub.png]
+image:ACM-all-cluster-hub.png[ACM-all-cluster-hub.png]
 
 === Verify Managed clusters have non-overlapping networks
 
@@ -230,12 +230,12 @@ Logon to the Hub Cluster ACM console using your OpenShift credentials.
 
 Go to the *{hub_openshift_cluster_console_url}/[OpenShift console]* and log in with your credentials username: *{hub_openshift_cluster_admin_username}* and password: *{hub_openshift_cluster_admin_password}*
 
-image:images/openshift-login.png[images/openshift-login.png]
+image:openshift-login.png[openshift-login.png]
 
 Navigate and Click `ALL CLUSTERS`, then go to `InfraSturcture`, `Clusters`, select `Cluster Sets` tab and in cluster sets select `clusterset1` and `Submariner add-ons` tab. A successful deployment will show `Connection status` and `Agent status` as `Healthy` for both `primary` and `secondary`.
 
 .ACM Submariner add-ons installed
-image:images/ACM-Submariner-addon-installed.png[ACM Submariner add-ons installed]
+image:ACM-Submariner-addon-installed.png[ACM Submariner add-ons installed]
 
 == OpenShift Data Foundation Review
 
@@ -322,7 +322,7 @@ IMPORTANT: Make sure you can access all clusters from the *Multicluster Web cons
 Click on *Data policies* and review the already created drpolicy named `drsync5m` 
 
 .DRPolicy check
-image:images/MCO-drpolicy-selections.png[DRPolicy check]
+image:MCO-drpolicy-selections.png[DRPolicy check]
 
 Note that the `Replication policy` will automatically be selected as *async* based on the OpenShift clusters selected and a *Sync schedule* will be available. The replication interval for this dr policy is 5 minutes. You can check by clicking 3 dots on the right side of drsync5m data policy and select Edit DR Policy. Please do not update anything here, once you review the content of the yaml file, just cancel the selection so that there is no update to the DR Policy.
 
@@ -438,7 +438,7 @@ pod/ramen-dr-cluster-operator-5564f9d669-f6lbc   2/2     Running   0          5m
 You can also go to *OperatorHub* on each of the managed clusters and look to see the `OpenShift DR Cluster Operator` is installed.
 
 .ODR Cluster Operator
-image:images/ODR-412-Cluster-operator.png[ODR Cluster Operator]
+image:ODR-412-Cluster-operator.png[ODR Cluster Operator]
 
 Validate the status of the *ODF* mirroring `daemon` health on the *Primary managed cluster* and the *Secondary managed cluster*.
 

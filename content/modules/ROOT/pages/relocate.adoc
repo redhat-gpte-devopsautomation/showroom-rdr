@@ -1,33 +1,32 @@
-:hub_openshift_api_server_url: %hub_openshift_api_server_url%
-:hub_openshift_cluster_console_url: %hub_openshift_cluster_console_url%
-:hub_openshift_cluster_admin_username: %hub_openshift_cluster_admin_username%
-:hub_openshift_cluster_admin_password: %hub_openshift_cluster_admin_password%
-:hub_gitea_console_url: %hub_gitea_console_url%
-:hub_gitea_admin_username: %hub_gitea_admin_username%
-:hub_gitea_admin_password: %hub_gitea_admin_password%
-:hub_bastion_public_hostname: %hub_bastion_public_hostname%
-:hub_bastion_ssh_password: %hub_bastion_ssh_password%
-:hub_bastion_ssh_user_name: %hub_bastion_ssh_user_name%
-:hub_ssh_command: %hub_ssh_command%
+:hub_openshift_api_server_url: %hub_cluster_openshift_api_server_url%
+:hub_openshift_cluster_console_url: %hub_cluster_openshift_cluster_console_url%
+:hub_openshift_cluster_admin_username: %hub_cluster_openshift_cluster_admin_username%
+:hub_openshift_cluster_admin_password: %hub_cluster_openshift_cluster_admin_password%
+:hub_gitea_console_url: %hub_cluster_gitea_console_url%
+:hub_gitea_admin_username: %hub_cluster_gitea_admin_username%
+:hub_gitea_admin_password: %hub_cluster_gitea_admin_password%
+:hub_bastion_public_hostname: %hub_cluster_bastion_public_hostname%
+:hub_bastion_ssh_password: %hub_cluster_bastion_ssh_password%
+:hub_bastion_ssh_user_name: %hub_cluster_bastion_ssh_user_name%
+:hub_ssh_command: %hub_cluster_ssh_command%
 
-:primary_openshift_api_server_url: %primary_openshift_api_server_url%
+:primary_openshift_api_server_url: %primary_cluster_openshift_api_server_url%
+:primary_openshift_cluster_console_url: %primary_cluster_openshift_cluster_console_url%
+:primary_openshift_cluster_admin_username: %primary_cluster_openshift_cluster_admin_username%
+:primary_openshift_cluster_admin_password: %primary_cluster_openshift_cluster_admin_password%
+:primary_bastion_public_hostname: %primary_cluster_bastion_public_hostname%
+:primary_bastion_ssh_password: %primary_cluster_bastion_ssh_password%
+:primary_bastion_ssh_user_name: %primary_cluster_bastion_ssh_user_name%
+:primary_ssh_command: %primary_cluster_ssh_command%
 
-:primary_openshift_cluster_console_url: %primary_openshift_cluster_console_url%
-:primary_openshift_cluster_admin_username: %primary_openshift_cluster_admin_username%
-:primary_openshift_cluster_admin_password: %primary_openshift_cluster_admin_password%
-:primary_bastion_public_hostname: %primary_bastion_public_hostname%
-:primary_bastion_ssh_password: %primary_bastion_ssh_password%
-:primary_bastion_ssh_user_name: %primary_bastion_ssh_user_name%
-:primary_ssh_command: %primary_ssh_command%
-
-:secondary_openshift_api_server_url: %secondary_openshift_api_server_url%
-:secondary_openshift_cluster_console_url: %secondary_openshift_cluster_console_url%
-:secondary_openshift_cluster_admin_username: %secondary_openshift_cluster_admin_username%
-:secondary_openshift_cluster_admin_password: %secondary_openshift_cluster_admin_password%
-:secondary_bastion_public_hostname: %secondary_bastion_public_hostname%
-:secondary_bastion_ssh_user_name: %secondary_bastion_ssh_user_name%
-:secondary_bastion_ssh_password: %secondary_bastion_ssh_password%
-:secondary_ssh_command: %secondary_ssh_command%
+:secondary_openshift_api_server_url: %secondary_cluster_openshift_api_server_url%
+:secondary_openshift_cluster_console_url: %secondary_cluster_openshift_cluster_console_url%
+:secondary_openshift_cluster_admin_username: %secondary_cluster_openshift_cluster_admin_username%
+:secondary_openshift_cluster_admin_password: %secondary_cluster_openshift_cluster_admin_password%
+:secondary_bastion_public_hostname: %secondary_cluster_bastion_public_hostname%
+:secondary_bastion_ssh_user_name: %secondary_cluster_bastion_ssh_user_name%
+:secondary_bastion_ssh_password: %secondary_cluster_bastion_ssh_password%
+:secondary_ssh_command: %secondary_cluster_ssh_command%
 
 === Relocate Application To Primary
 
@@ -49,24 +48,24 @@ oc exec -it $POD -n globex -- psql --dbname catalog --command "update catalog se
 +
 . Confirm if the price has updated to by switching back to the Globex application on the secondary cluster and refresh the page.  Select the last page (6) and notice that the price of the Quarkust T-shirt is now *$20.00*
 +
-image:images/secondary-price-updated.png[images/secondary-price-updated.png]
+image:secondary-price-updated.png[secondary-price-updated.png]
 +
 . Go back to the Hub Cluster RHACM console {hub_openshift_cluster_console_url} with the user / password and select *Applications* and filter on *Subscription*.  Click the 3 dots at the end of the *globex* application and select *Relocate application*.
 +
-image:images/rhacm-relocate-menu.png[images/rhacm-relocate-menu.png]
+image:rhacm-relocate-menu.png[rhacm-relocate-menu.png]
 +
 . Provide the following details on the popup:
 .. *Select policy*: drsync5m
 .. *Target cluster*: primary
 .. *Select subscriptions group*: globex-subscription-1
 +
-image:images/rhacm-relocate-application.png[images/rhacm-relocate-application.png]
+image:rhacm-relocate-application.png[rhacm-relocate-application.png]
 +
 NOTE: The subscription group may not be in a ready state to select.  Wait a few minutes and try again.
 .. Click *Initiate*
 . You will notice that the pods on the secondary cluster in the *globex* namespace will start terminating as the app starts relocating back to the primary cluster.
 +
-image:images/secondary-pods-terminated.png[images/secondary-pods-terminated.png]
+image:secondary-pods-terminated.png[secondary-pods-terminated.png]
 +
 Review the status of the pvc and the cephblockpool on secondary. The health may be temporary in warning state and then goes back to healthy state. You may also see `states:map[replaying:2]`:
 +
@@ -99,19 +98,19 @@ inventory-database   Terminating    pvc-fda1a2a3-cb5a-495d-b9c0-47ab95bba2c7   5
 +
 . Switch to the *primary* cluster console and click *Workloads->Pods* on the left menu.  Ensure your selected project is *globex*.  Notice that the application pods have been recreated in this namespace. You will see the pods in primary once all the pvc's complete termination in secondary cluster.
 +
-image:images/primary-pods-created.png[images/primary-pods-created.png]
+image:primary-pods-created.png[primary-pods-created.png]
 +
 . Next, click *Networking->Routes* on the left menu and then click on the *Location* link of the *globex-ui* route.
 +
-image:images/primary-globex-route.png[images/primary-globex-route.png]
+image:primary-globex-route.png[primary-globex-route.png]
 +
 . Once you've clicked the link you will be redirected to globex online store front end.  Select *Cool Stuff Store* at the top of the page.
 +
-image:images/primary-globex-landing.png[images/primary-globex-landing.png]
+image:primary-globex-landing.png[primary-globex-landing.png]
 +
 . Select the last page (6) and notice that the price of the Quarkust T-shirt is still *$20.00*.
 +
-image:images/secondary-price-updated.png[images/secondary-price-updated.png]
+image:secondary-price-updated.png[secondary-price-updated.png]
 +
 Review the status of the pvc (terminating) and the cephblockpool on primary. The health may be temporary in warning state and then goes back to healthy state:
 +

@@ -1,33 +1,32 @@
-:hub_openshift_api_server_url: %hub_openshift_api_server_url%
-:hub_openshift_cluster_console_url: %hub_openshift_cluster_console_url%
-:hub_openshift_cluster_admin_username: %hub_openshift_cluster_admin_username%
-:hub_openshift_cluster_admin_password: %hub_openshift_cluster_admin_password%
-:hub_gitea_console_url: %hub_gitea_console_url%
-:hub_gitea_admin_username: %hub_gitea_admin_username%
-:hub_gitea_admin_password: %hub_gitea_admin_password%
-:hub_bastion_public_hostname: %hub_bastion_public_hostname%
-:hub_bastion_ssh_password: %hub_bastion_ssh_password%
-:hub_bastion_ssh_user_name: %hub_bastion_ssh_user_name%
-:hub_ssh_command: %hub_ssh_command%
+:hub_openshift_api_server_url: %hub_cluster_openshift_api_server_url%
+:hub_openshift_cluster_console_url: %hub_cluster_openshift_cluster_console_url%
+:hub_openshift_cluster_admin_username: %hub_cluster_openshift_cluster_admin_username%
+:hub_openshift_cluster_admin_password: %hub_cluster_openshift_cluster_admin_password%
+:hub_gitea_console_url: %hub_cluster_gitea_console_url%
+:hub_gitea_admin_username: %hub_cluster_gitea_admin_username%
+:hub_gitea_admin_password: %hub_cluster_gitea_admin_password%
+:hub_bastion_public_hostname: %hub_cluster_bastion_public_hostname%
+:hub_bastion_ssh_password: %hub_cluster_bastion_ssh_password%
+:hub_bastion_ssh_user_name: %hub_cluster_bastion_ssh_user_name%
+:hub_ssh_command: %hub_cluster_ssh_command%
 
-:primary_openshift_api_server_url: %primary_openshift_api_server_url%
+:primary_openshift_api_server_url: %primary_cluster_openshift_api_server_url%
+:primary_openshift_cluster_console_url: %primary_cluster_openshift_cluster_console_url%
+:primary_openshift_cluster_admin_username: %primary_cluster_openshift_cluster_admin_username%
+:primary_openshift_cluster_admin_password: %primary_cluster_openshift_cluster_admin_password%
+:primary_bastion_public_hostname: %primary_cluster_bastion_public_hostname%
+:primary_bastion_ssh_password: %primary_cluster_bastion_ssh_password%
+:primary_bastion_ssh_user_name: %primary_cluster_bastion_ssh_user_name%
+:primary_ssh_command: %primary_cluster_ssh_command%
 
-:primary_openshift_cluster_console_url: %primary_openshift_cluster_console_url%
-:primary_openshift_cluster_admin_username: %primary_openshift_cluster_admin_username%
-:primary_openshift_cluster_admin_password: %primary_openshift_cluster_admin_password%
-:primary_bastion_public_hostname: %primary_bastion_public_hostname%
-:primary_bastion_ssh_password: %primary_bastion_ssh_password%
-:primary_bastion_ssh_user_name: %primary_bastion_ssh_user_name%
-:primary_ssh_command: %primary_ssh_command%
-
-:secondary_openshift_api_server_url: %secondary_openshift_api_server_url%
-:secondary_openshift_cluster_console_url: %secondary_openshift_cluster_console_url%
-:secondary_openshift_cluster_admin_username: %secondary_openshift_cluster_admin_username%
-:secondary_openshift_cluster_admin_password: %secondary_openshift_cluster_admin_password%
-:secondary_bastion_public_hostname: %secondary_bastion_public_hostname%
-:secondary_bastion_ssh_user_name: %secondary_bastion_ssh_user_name%
-:secondary_bastion_ssh_password: %secondary_bastion_ssh_password%
-:secondary_ssh_command: %secondary_ssh_command%
+:secondary_openshift_api_server_url: %secondary_cluster_openshift_api_server_url%
+:secondary_openshift_cluster_console_url: %secondary_cluster_openshift_cluster_console_url%
+:secondary_openshift_cluster_admin_username: %secondary_cluster_openshift_cluster_admin_username%
+:secondary_openshift_cluster_admin_password: %secondary_cluster_openshift_cluster_admin_password%
+:secondary_bastion_public_hostname: %secondary_cluster_bastion_public_hostname%
+:secondary_bastion_ssh_user_name: %secondary_cluster_bastion_ssh_user_name%
+:secondary_bastion_ssh_password: %secondary_cluster_bastion_ssh_password%
+:secondary_ssh_command: %secondary_cluster_ssh_command%
 
 == OnBoard a sample application and make it DR Ready. Test
 
