@@ -159,7 +159,7 @@ image:primary-globex-landing.png[primary-globex-landing.png]
 +
 . You can also get route from terminal window which you see on the right side of your instruction guide, login to the primary cluster api link:{primary_openshift_cluster_console_url}[Primary Cluster OpenShift Cluster API link] with your credentials username: {primary_openshift_cluster_admin_username} and password: {primary_openshift_cluster_admin_password}.
 +
-[source,role="execute",subs="attributes"]
+[source,bash,role="execute",subs="attributes"]
 ----
 oc login -u {primary_cluster_openshift_cluster_admin_username} -p {primary_cluster_openshift_cluster_admin_password} {primary_cluster_openshift_api_server_url} 
 ----
