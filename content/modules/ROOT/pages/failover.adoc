@@ -34,14 +34,14 @@
 [arabic]
 . In the terminal session, login to the primary cluster api link:{primary_openshift_cluster_console_url}[Primary Cluster OpenShift Cluster API link] with your credentials username: {primary_openshift_cluster_admin_username} and password: {primary_openshift_cluster_admin_password}.
 +
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc login -u {primary_openshift_cluster_admin_username} -p {primary_openshift_cluster_admin_password} {primary_openshift_api_server_url}
 ----
 +
 . You are now going to make an update to the price of one of the globex store items.  This data is stored in a postgres database attached to a PVC which we will preserve during the failover.  Update the price by running the below commands:
 +
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 POD=$(oc get pods -n globex | grep catalog-database | awk '{print $1}')
 oc exec -it $POD -n globex -- psql --dbname catalog --command "update catalog set price = 15 where name = 'Quarkus T-shirt';"
@@ -64,14 +64,14 @@ image:rhacm-save-dr-policy.png[rhacm-save-dr-policy.png]
 +
 . In the terminal session, login to the secondary cluster {secondary_openshift_api_server_url} with your credentials username: {secondary_openshift_cluster_admin_username} and password: {secondary_openshift_cluster_admin_password}.
 +
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc login -u {secondary_openshift_cluster_admin_username} -p {secondary_openshift_cluster_admin_password} {secondary_openshift_api_server_url}
 ----
 +
 . You will now need to create the *globex* namespace in the secondary cluster and annotate it with the globex subscription name.
 +
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc new-project globex || oc project globex
 oc annotate ns globex --overwrite=true apps.open-cluster-management.io/hosting-subscription=globex/globex-subscription-1
@@ -96,12 +96,12 @@ image:primary-pods-terminated.png[primary-pods-terminated.png]
 +
 Review the status of the pvc (terminating) and the cephblockpool on primary. The health may be temporary in warning state and then goes back to healthy state:
 +
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc login -u {primary_openshift_cluster_admin_username} -p {primary_openshift_cluster_admin_password} {primary_openshift_api_server_url}
 ----
 +
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc get cephblockpool ocs-storagecluster-cephblockpool -n openshift-storage -o jsonpath='{.status.mirroringStatus.summary}{"\n"}'
 ----
@@ -113,7 +113,7 @@ map[daemon_health:OK health:OK image_health:OK states:map[replaying:2]]
 +
 . Check the pvc's (persistent volumen claims) being terminated and eventually disappears.
 +
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc get pvc -n globex
 ----
@@ -143,14 +143,14 @@ image:primary-globex-landing.png[primary-globex-landing.png]
 +
 . You can also get route from terminal window which you see on the right side of your instruction guide, login to the secondary cluster api link:{secondary_openshift_cluster_console_url}[Secondary Cluster OpenShift Cluster API link] with your credentials username: {secondary_openshift_cluster_admin_username} and password: {secondary_openshift_cluster_admin_password}.
 +
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc login -u {secondary_openshift_cluster_admin_username} -p {secondary_openshift_cluster_admin_password} {secondary_openshift_api_server_url}
 ----
 +
 . You are now going to get the route of globex-ui and copy the route for example *globex-ui-globex.apps.cluster-flxz7-2.sandbox2418.opentlc.com* and paste in a browser window to get the coolstore app UI. This is the same route you can see from previous step by login to OpenShift Console:
 +
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc get route -n globex | grep globex-ui
 ----
@@ -167,12 +167,12 @@ image:secondary-price-preserved.png[secondary-price-preserved.png]
 +
 Review the status of the pvc and the cephblockpool on secondary. The health may be temporary in warning state and then goes back to healthy state. You may also see `states:map[replaying:2]`:
 +
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc login -u {secondary_openshift_cluster_admin_username} -p {secondary_openshift_cluster_admin_password} {secondary_openshift_api_server_url}
 ----
 +
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc get cephblockpool ocs-storagecluster-cephblockpool -n openshift-storage -o jsonpath='{.status.mirroringStatus.summary}{"\n"}'
 ----
@@ -182,7 +182,7 @@ oc get cephblockpool ocs-storagecluster-cephblockpool -n openshift-storage -o js
 map[daemon_health:OK health:OK image_health:OK states:map[replaying:2]]
 ----
 +
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc get pvc -n globex
 ----

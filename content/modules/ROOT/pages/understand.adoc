@@ -158,12 +158,12 @@ For that you have a terminal window along with your workshop modules. You can us
 If you want you can also ssh to each cluster separately using mutliple terminal windows outside of this browser based termninal window.
 
 For primary :
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc login -u {primary_openshift_cluster_admin_username} -p {primary_openshift_cluster_admin_password} {primary_openshift_api_server_url}
 ----
 
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc get networks.config.openshift.io cluster -o json | jq .spec
 ----
@@ -188,12 +188,12 @@ oc get networks.config.openshift.io cluster -o json | jq .spec
 ----
 
 For Secondary:
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc login -u {secondary_openshift_cluster_admin_username} -p {secondary_openshift_cluster_admin_password} {secondary_openshift_api_server_url}
 ----
 
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc get networks.config.openshift.io cluster -o json | jq .spec
 ----
@@ -241,37 +241,37 @@ In order to configure storage replication between the two OCP clusters `OpenShif
 
 You can validate the successful deployment of ODF on each managed OCP cluster with the following command:
 For primary :
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc login -u {primary_openshift_cluster_admin_username} -p {primary_openshift_cluster_admin_password} {primary_openshift_api_server_url}
 ----
 
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc get storagecluster -n openshift-storage ocs-storagecluster -o jsonpath='{.status.phase}{"\n"}'
 ----
 
 And for the Multi-Cluster Gateway (MCG):
 
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc get noobaa -n openshift-storage noobaa -o jsonpath='{.status.phase}{"\n"}'
 ----
 
 For Secondary:
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc login -u {secondary_openshift_cluster_admin_username} -p {secondary_openshift_cluster_admin_password} {secondary_openshift_api_server_url}
 ----
 
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc get storagecluster -n openshift-storage ocs-storagecluster -o jsonpath='{.status.phase}{"\n"}'
 ----
 
 And for the Multi-Cluster Gateway (MCG):
 
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc get noobaa -n openshift-storage noobaa -o jsonpath='{.status.phase}{"\n"}'
 ----
@@ -285,12 +285,12 @@ NOTE: The successful installation of ODF can also be validated in the *OCP Web C
 Check to see the following operators *Pod* are in a `Running` state. You may also see other operator pods which are not related to Regional DR configuration.
 
 For Hub:
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc login -u {hub_openshift_cluster_admin_username} -p {hub_openshift_cluster_admin_password} {hub_openshift_api_server_url}
 ----
 
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc get pods -n openshift-operators
 ----
@@ -343,12 +343,12 @@ To validate that the *DRPolicy* is created successfully run this command on the 
 NOTE: Replace `<drpolicy_name>` with your unique name.
 
 For Hub (drpolicy name is drsync5m):
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc login -u {hub_openshift_cluster_admin_username} -p {hub_openshift_cluster_admin_password} {hub_openshift_api_server_url}
 ----
 
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc get drpolicy drsync5m -o jsonpath='{.status.conditions[].reason}{"\n"}'
 ----
@@ -359,7 +359,7 @@ Succeeded
 
 To validate object bucket access from the *Hub cluster* to both the *Primary managed cluster* and the *Secondary managed cluster* first get the names of the *DRClusters* on the *Hub cluster*.
 
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc get drclusters
 ----
@@ -374,7 +374,7 @@ Now test S3 access to each bucket created on each managed cluster using this *DR
 
 NOTE: Replace `<drcluster_name>` with your unique name.
 
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc get drcluster primary -o jsonpath='{.status.conditions[2].reason}{"\n"}'
 ----
@@ -383,7 +383,7 @@ oc get drcluster primary -o jsonpath='{.status.conditions[2].reason}{"\n"}'
 Succeeded
 ----
 
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc get drcluster secondary -o jsonpath='{.status.conditions[2].reason}{"\n"}'
 ----
@@ -397,11 +397,11 @@ NOTE: Make sure to run command for both *DRClusters* on the *Hub cluster*.
 To validate that the `OpenShift DR Cluster` operator installation was successful on the *Primary managed cluster* and the *Secondary managed cluster* check for CSV `odr-cluster-operator` and pod `ramen-dr-cluster-operator` by running the following command:
 
 For primary :
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc login -u {primary_openshift_cluster_admin_username} -p {primary_openshift_cluster_admin_password} {primary_openshift_api_server_url}
 ----
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc get csv,pod -n openshift-dr-system
 ----
@@ -415,12 +415,12 @@ pod/ramen-dr-cluster-operator-5564f9d669-f6lbc   2/2     Running   0          5m
 ----
 
 For Secondary:
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc login -u {secondary_openshift_cluster_admin_username} -p {secondary_openshift_cluster_admin_password} {secondary_openshift_api_server_url}
 ----
 
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc get csv,pod -n openshift-dr-system
 ----
@@ -441,12 +441,12 @@ image:ODR-412-Cluster-operator.png[ODR Cluster Operator]
 Validate the status of the *ODF* mirroring `daemon` health on the *Primary managed cluster* and the *Secondary managed cluster*.
 
 For Primary:
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc login -u {primary_openshift_cluster_admin_username} -p {primary_openshift_cluster_admin_password} {primary_openshift_api_server_url}
 ----
 
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc get cephblockpool ocs-storagecluster-cephblockpool -n openshift-storage -o jsonpath='{.status.mirroringStatus.summary}{"\n"}'
 ----
@@ -456,12 +456,12 @@ oc get cephblockpool ocs-storagecluster-cephblockpool -n openshift-storage -o js
 ----
 
 For Secondary:
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc login -u {secondary_openshift_cluster_admin_username} -p {secondary_openshift_cluster_admin_password} {secondary_openshift_api_server_url}
 ----
 
-[source,role="execute"]
+[source,role="execute",subs="attributes"]
 ----
 oc get cephblockpool ocs-storagecluster-cephblockpool -n openshift-storage -o jsonpath='{.status.mirroringStatus.summary}{"\n"}'
 ----
