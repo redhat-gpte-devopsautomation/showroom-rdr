@@ -165,7 +165,7 @@ globex-ui                     globex-ui-globex.apps.cluster-flxz7-2.sandbox2418.
 +
 image:secondary-price-preserved.png[secondary-price-preserved.png]
 +
-Review the status of the pvc and the cephblockpool on secondary. The health may be temporary in warning state and then goes back to healthy state. You may also see `states:map[replaying:2]`:
+Review the status of the pvc and the cephblockpool on secondary. The health may be temporary in warning or error state and then goes back to healthy state. You may also see `states:map[replaying:2]`:
 +
 [source,role="execute",subs="attributes"]
 ----
