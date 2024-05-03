@@ -311,7 +311,7 @@ NOTE: If all of your OpenShift clusters are deployed using signed and valid set 
 
 Regional Disaster Recovery uses the *DRPolicy* resources on the *Hub cluster* to failover and relocate workloads across managed clusters. A *DRPolicy* requires a set of two *DRClusters* or peer clusters with *ODF* version 4.12 installed. The `ODF MultiCluster Orchestrator Operator` facilitates the creation of each *DRPolicy* and the corresponding *DRClusters* through the *Multicluster Web console*.
 
-On the *Hub cluster* navigate and select `All Clusters`. Then select *Data policies* under Data services menu. If this your first *DRPolicy* created you will see *Create DRpolicy* at the bottom of the page, else you will the the already created DRPolicy.
+On the *Hub cluster* navigate and select `All Clusters`. Then select *Data policies* under Data services menu. If this your first *DRPolicy* created you will see *Create DRpolicy* at the bottom of the page, else you will see the already created DRPolicy.
 
 IMPORTANT: Make sure you can access all clusters from the *Multicluster Web console*. The clusters will be directly below `All Clusters`.
 
