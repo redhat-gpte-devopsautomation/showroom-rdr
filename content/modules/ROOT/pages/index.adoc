@@ -39,9 +39,6 @@ In this hands on lab you will understand the nuances of how to setup an applicat
 Further, we will test the data persistency across failover/relocate(failback) scenarios by updating the data in the database. Verify that the data is consistent and available after transition from one site/cluster to another.
 Finally, we onboard a sample application to be part of Disaster Recovery strategy and test failover/relocate(failback).This time without any guided information to test your understanding.
 
-[NOTE]
-Configuring OpenShift Data Foundation for Regional-DR with Advanced Cluster Management is a Technology Preview feature and is subject to Technology Preview support limitations. Technology Preview features are not supported with Red Hat production service level agreements (SLAs) and might not be functionally complete. Red Hat does not recommend using them in production. These features provide early access to upcoming product features, enabling customers to test functionality and provide feedback during the development process.
-
 == Intro
 
 In this workshop, you will learn how to achieve Business Continuity for your applications hosted on Red Hat OpenShift platform. Understand some of the implementation aspects of disaster recovery on Red Hat OpenShift Platform. Persistent storage requirement is key to many application and to achieve disaster recovery for such applications, data replication becomes very important. In this lab we will leverage Red Hat OpenShift Data Foundations Storage.
