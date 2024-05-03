@@ -54,8 +54,6 @@ The intent of this guide is to understand the implementation aspects necessary t
 
 This is a general overview of the steps required to configure and execute `OpenShift Disaster Recovery` (ODR) capabilities using OpenShift Data Foundation (ODF) *v4.12* and `RHACM` *v2.7* across two distinct OCP clusters separated by distance. In addition to these two cluster called `managed` clusters, there is currently a requirement to have a third OCP cluster that will be the `Advanced Cluster Management` (ACM) `hub` cluster.
 
-NOTE: These steps are considered Tech Preview in ODF 4.12 and are provided for POC (Proof of Concept) purposes. OpenShift `Regional Disaster Recovery` will be supported for production usage in a future release.
-
 [IMP]
 Configuring OpenShift Data Foundation for Regional-DR with Advanced Cluster Management is a Technology Preview feature and is subject to Technology Preview support limitations. Technology Preview features are not supported with Red Hat production service level agreements (SLAs) and might not be functionally complete. Red Hat does not recommend using them in production. These features provide early access to upcoming product features, enabling customers to test functionality and provide feedback during the development process.
 
@@ -121,7 +119,7 @@ Ensure the primary and secondary OCP clusters have unique private network addres
 . *Connect the private networks using Submariner add-ons.* +
 Connect the managed OCP private networks (cluster and service) using the RHACM Submariner add-ons.
 . *Install ODF 4.12 on managed clusters.* +
-Install ODF 4.12 on primary and secondary OCP managed clusters and validate deployment.
+Install ODF 4.12 on primary and secondary OCP managed clusters and validate deployment. It is recommended to use the latest release of Red Hat products when available.
 . *Install ODF Multicluster Orchestrator on the ACM hub cluster.* +
 Install from OperatorHub on the ACM hub cluster the ODF Multicluster Orchestrator. The OpenShift DR Hub operator will also be installed.
 . *Configure SSL access between S3 endpoints* +
